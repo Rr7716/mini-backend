@@ -8,7 +8,6 @@ class Course(BaseModel):
     id: Optional[str] = None
     content: str # 学习内容
     weekday: int # 星期几
-    course_time_id: str
     course_time: CourseTime # 所属时间段
     price: int = 100 # 课时费(元/每人)
     per_hour_cost: int = 100 # 课时费(元/每小时)
