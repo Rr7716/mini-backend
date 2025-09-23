@@ -6,15 +6,17 @@ from models.student import Student
  
 class Course(BaseModel):
     id: Optional[str] = None
+    belong_week: Optional[int] = 1 # 属于第几周的
     content: str # 学习内容
     weekday: int # 星期几
     course_time: CourseTime # 所属时间段
     price: int = 100 # 课时费(元/每人)
     per_hour_cost: int = 100 # 课时费(元/每小时)
-    students: List[Student] = []
+    students: Optional[List[Student]] = []
     course_left: Optional[int] = 0 # 课时剩余
     grade: Optional[str] = None # 年级
     description: Optional[str] = None
+    is_deleted: Optional[bool] = False
     
     # @field_validator('week_day', mode='after')  
     # @classmethod
