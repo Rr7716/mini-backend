@@ -16,7 +16,8 @@ class Course(BaseModel):
     course_left: Optional[int] = 0 # 课时剩余
     grade: Optional[str] = None # 年级
     description: Optional[str] = None
-    is_deleted: Optional[bool] = False
+    is_delete: Optional[bool] = False
+    last_expire_time: Optional[str] = '2000-01-01 00:00:00'
     
     # @field_validator('week_day', mode='after')  
     # @classmethod
