@@ -6,8 +6,10 @@ from fastapi import APIRouter, FastAPI, HTTPException
 from configrations import db
 from models.course import Course
 from public.ser import to_serializable
+from public.const import weekday_dic
 from handle_db.handle_course import update_course as update
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from public.time_tools import is_same_day
 from websocket_manager import ConnectionManager
 
 collection = db['course']
@@ -29,6 +31,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
 # 自动消课时
 async def autp_expire():
+    # await manager.broadcast(json.dumps({"id": "68d7b308974099d640467cfa", "last_expire_time": "2025-09-27 17:49:27", "course_left": 9}))
+    # return
     now = datetime.now()
     now_str = now.strftime('%Y-%m-%d %H:%M:%S') # 2025-09-25 13:37:34
     date = now_str.split(' ')[0] # 2025-09-25
@@ -39,6 +43,8 @@ async def autp_expire():
         course = Course(**doc)
         course.id = str(doc['_id'])
         last_expire_date = course.last_expire_time.split(' ')[0] # 2025-09-25
+        if is_same_day(now, datetime.strptime(course.create_time, '%Y-%m-%d %H:%M:%S')): # 当天创建, 不消课时
+            continue
         if date == last_expire_date: # 说明今天已经消了课时
             continue
         if course.weekday != weekday: # 不是同一天
@@ -55,7 +61,7 @@ async def autp_expire():
             }
             res, msg = update(doc['_id'], content)
             if res:
-                print(f'[{now_str}][{course.content}]: 自动消课时[{course.course_left}][{course.course_left-1}]')
+                print(f'[{now_str}][{weekday_dic[weekday]}{course.course_time.start_time}-{course.course_time.end_time}][{course.content}]: 自动消课时[{course.course_left}][{course.course_left-1}]')
                 # 通知前端
                 await manager.broadcast(json.dumps(content))
             else:
@@ -77,6 +83,7 @@ async def get_all_course_time():
 @router.post("/")
 async def create_course(new_course :Course):
     try:
+        new_course.create_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(new_course)
         resp = collection.insert_one(new_course.model_dump())
         return {"status_code":200, "id":str(resp.inserted_id)}

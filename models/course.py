@@ -18,6 +18,7 @@ class Course(BaseModel):
     description: Optional[str] = None
     is_delete: Optional[bool] = False
     last_expire_time: Optional[str] = '2000-01-01 00:00:00'
+    create_time: Optional[str] = '2000-01-01 00:00:00'
     
     # @field_validator('week_day', mode='after')  
     # @classmethod
