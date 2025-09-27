@@ -31,8 +31,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 # 自动消课时
 async def autp_expire():
-    # await manager.broadcast(json.dumps({"id": "68d7b308974099d640467cfa", "last_expire_time": "2025-09-27 17:49:27", "course_left": 9}))
-    # return
     now = datetime.now()
     now_str = now.strftime('%Y-%m-%d %H:%M:%S') # 2025-09-25 13:37:34
     date = now_str.split(' ')[0] # 2025-09-25

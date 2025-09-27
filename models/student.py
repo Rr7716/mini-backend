@@ -4,6 +4,8 @@ from datetime import datetime
  
 class Student(BaseModel):
     id: Optional[str] = None
-    cn_name: str
     en_name: str
-    age: int
+    cn_name: Optional[str] = ''
+    age: Optional[int] = 5
+    gender: Optional[str] = 'boy'
+    grade: Optional[str] = '幼儿园'
