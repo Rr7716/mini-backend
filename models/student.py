@@ -9,3 +9,4 @@ class Student(BaseModel):
     age: Optional[int] = 5
     gender: Optional[str] = 'boy'
     grade: Optional[str] = '幼儿园'
+    is_delete: Optional[bool] = False

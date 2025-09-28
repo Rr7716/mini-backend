@@ -17,7 +17,8 @@ class Course(BaseModel):
     grade: Optional[str] = None # 年级
     description: Optional[str] = None
     is_delete: Optional[bool] = False
-    last_expire_time: Optional[str] = '2000-01-01 00:00:00'
+    last_expire_time: Optional[str] = '2000-01-01 00:00:00' # 上次消课时的时间
+    expire_time: Optional[str] = '2000-01-01 00:00:00' # 上上次消课时的时间
     create_time: Optional[str] = '2000-01-01 00:00:00'
     
     # @field_validator('week_day', mode='after')  

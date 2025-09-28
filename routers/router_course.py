@@ -9,8 +9,9 @@ from public.ser import to_serializable
 from public.const import weekday_dic
 from handle_db.handle_course import update_course as update
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from public.time_tools import is_same_day
+from public.time_tools import get_week_range, is_same_day, is_same_week
 from websocket_manager import ConnectionManager
+from handle_db.handle_takeleave import get
 
 collection = db['course']
 
@@ -50,10 +51,19 @@ async def autp_expire():
         if course.course_left < 1: # 没有课时可以消了
             continue
         
+        monday_str, sunday_str = get_week_range()
+        # 如果这一周的这节课请假了, 则不消课时
+        takeleaves = get(course.id, monday_str, sunday_str)
+        # exist_takeleaves = [takeleave for takeleave in takeleaves if is_same_week(now, datetime.strptime(takeleave.create_time, '%Y-%m-%d %H:%M:%S'))]
+        if takeleaves:
+            print(f'[{now_str}][{weekday_dic[weekday]}{course.course_time.start_time}-{course.course_time.end_time}][{course.content}]: 请假了, 不消课时')
+            continue
+        
         dt = datetime.strptime(course.course_time.end_time, "%H:%M")
         if now.hour > dt.hour or (now.hour == dt.hour and now.minute >= dt.minute):
             content = {
                 'id': course.id,
+                'expire_time': course.last_expire_time,
                 'last_expire_time': now_str,
                 'course_left': course.course_left-1,
             }

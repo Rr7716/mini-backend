@@ -4,6 +4,7 @@ from routers.router_fee import router as fee
 from routers.router_course import autp_expire, router as course, router_ws
 from routers.router_course_time import router as course_time
 from routers.router_student import router as student
+from routers.router_takeleave import router as takeleave
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from contextlib import asynccontextmanager
 
@@ -28,6 +29,7 @@ app.include_router(fee, prefix="/fee", tags=['课时费'])
 app.include_router(course, prefix="/course", tags=['课程'])
 app.include_router(course_time, prefix="/course_time", tags=['课程时间'])
 app.include_router(student, prefix="/student", tags=['学生'])
+app.include_router(takeleave, prefix="/takeleave", tags=['请假'])
 
 @app.get('/index')
 def root():
