@@ -14,4 +14,17 @@ def update_course(id: ObjectId, updated_course:dict):
         return True, ''
     except Exception as e:
         return True, f'Some error occured {e}'
-        
+
+def get_by_id(course_id: str):
+    cursor = collection.find({
+        "_id": ObjectId(course_id),
+    })
+    return format(cursor)
+
+def format(cursor):
+    data = []
+    for doc in cursor:
+        course = Course(**doc)
+        course.id = str(doc['_id'])
+        data.append(course)
+    return data

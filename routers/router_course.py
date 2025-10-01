@@ -4,7 +4,9 @@ from typing import List
 from bson import ObjectId
 from fastapi import APIRouter, FastAPI, HTTPException
 from configrations import db
+from handle_db.handle_removetimes import insert_removetimes
 from models.course import Course
+from models.removetimes import RemoveTimes
 from public.ser import to_serializable
 from public.const import weekday_dic
 from handle_db.handle_course import update_course as update
@@ -12,6 +14,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from public.time_tools import get_week_range, is_same_day, is_same_week
 from websocket_manager import ConnectionManager
 from handle_db.handle_takeleave import get
+from configrations import client
 
 collection = db['course']
 
@@ -31,7 +34,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 # 自动消课时
-async def autp_expire():
+async def autp_remove():
     now = datetime.now()
     now_str = now.strftime('%Y-%m-%d %H:%M:%S') # 2025-09-25 13:37:34
     date = now_str.split(' ')[0] # 2025-09-25
@@ -67,13 +70,17 @@ async def autp_expire():
                 'last_expire_time': now_str,
                 'course_left': course.course_left-1,
             }
-            res, msg = update(doc['_id'], content)
-            if res:
+            # 开启 session 并执行事务
+            with client.start_session() as session:
+                def callback(session):
+                    update(doc['_id'], content)
+                    insert_removetimes(RemoveTimes(course_id=str(doc['_id'])))
+                    
+                # 在事务中运行 callback
+                session.with_transaction(callback)
                 print(f'[{now_str}][{weekday_dic[weekday]}{course.course_time.start_time}-{course.course_time.end_time}][{course.content}]: 自动消课时[{course.course_left}][{course.course_left-1}]')
                 # 通知前端
                 await manager.broadcast(json.dumps(content))
-            else:
-                print(f'[{now_str}][{course.content}]: 自动消课时失败 [{msg}]')
         
 
 

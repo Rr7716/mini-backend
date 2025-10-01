@@ -10,8 +10,8 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from public.time_tools import get_week_range
 
 collection = db['takeleave']
-
 router = APIRouter()
+
 @router.get("/{course_id}", response_model=List[TakeLeave])
 async def get_takeleave(course_id:str):
     cursor = collection.find({'course_id': course_id})
@@ -22,7 +22,6 @@ async def get_takeleave(course_id:str):
         data.append(takeleave)
     return data
 
-router = APIRouter()
 @router.get("/range", response_model=List[TakeLeave])
 async def get_takeleave_by_range():
     monday_str, sunday_str = get_week_range()

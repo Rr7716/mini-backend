@@ -1,10 +1,11 @@
 import datetime
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from routers.router_fee import router as fee
-from routers.router_course import autp_expire, router as course, router_ws
+from routers.router_course import autp_remove, router as course, router_ws
 from routers.router_course_time import router as course_time
 from routers.router_student import router as student
 from routers.router_takeleave import router as takeleave
+from routers.router_removetimes import router as removetimes
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from contextlib import asynccontextmanager
 
@@ -13,7 +14,7 @@ scheduler = AsyncIOScheduler()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 启动时
-    scheduler.add_job(autp_expire, "interval", seconds=10)
+    scheduler.add_job(autp_remove, "interval", seconds=10)
     scheduler.start()
     print("Scheduler 已启动")
     
@@ -30,6 +31,7 @@ app.include_router(course, prefix="/course", tags=['课程'])
 app.include_router(course_time, prefix="/course_time", tags=['课程时间'])
 app.include_router(student, prefix="/student", tags=['学生'])
 app.include_router(takeleave, prefix="/takeleave", tags=['请假'])
+app.include_router(removetimes, prefix="/removetimes", tags=['消课时记录'])
 
 @app.get('/index')
 def root():
